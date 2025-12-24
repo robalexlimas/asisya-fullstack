@@ -35,20 +35,27 @@ public sealed class ProductRepository : IProductRepository
     }
 
     public async Task<(IReadOnlyList<ProductListItemDto> Items, int Total)> GetPagedAsync(
-        int page,
-        int pageSize,
-        string? search,
-        Guid? categoryId,
-        CancellationToken ct
-    )
+    int page,
+    int pageSize,
+    string? search,
+    Guid? categoryId,
+    CancellationToken ct
+)
     {
         const string sql = """
-        SELECT * FROM sp_get_products(@Page, @PageSize, @Search, @CategoryId);
-        """;
+    SELECT
+      id            AS "Id",
+      name          AS "Name",
+      sku           AS "Sku",
+      price         AS "Price",
+      category_name AS "CategoryName",
+      total_count   AS "TotalCount"
+    FROM sp_get_products(@Page, @PageSize, @Search, @CategoryId);
+    """;
 
         using var conn = _db.CreateConnection();
 
-        using var multi = await conn.QueryMultipleAsync(
+        var rows = (await conn.QueryAsync<ProductListRow>(
             new CommandDefinition(
                 sql,
                 new
@@ -60,12 +67,30 @@ public sealed class ProductRepository : IProductRepository
                 },
                 cancellationToken: ct
             )
-        );
+        )).ToList();
 
-        var items = (await multi.ReadAsync<ProductListItemDto>()).ToList();
-        var total = await multi.ReadSingleAsync<int>();
+        var total = rows.Count > 0 ? rows[0].TotalCount : 0;
+
+        var items = rows.Select(r => new ProductListItemDto
+        {
+            Id = r.Id,
+            Name = r.Name,
+            Sku = r.Sku,
+            Price = r.Price,
+            CategoryName = r.CategoryName
+        }).ToList();
 
         return (items, total);
+    }
+
+    private sealed class ProductListRow
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = default!;
+        public string Sku { get; set; } = default!;
+        public decimal Price { get; set; }
+        public string CategoryName { get; set; } = default!;
+        public int TotalCount { get; set; }
     }
 
     public async Task<ProductDetailDto?> GetByIdAsync(Guid id, CancellationToken ct)
