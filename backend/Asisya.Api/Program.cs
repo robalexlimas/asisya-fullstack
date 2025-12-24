@@ -47,6 +47,7 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 // Services
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<ProductService>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
