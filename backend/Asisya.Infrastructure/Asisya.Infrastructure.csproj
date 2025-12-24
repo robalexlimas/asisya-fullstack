@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.35" />
     <ProjectReference Include="..\Asisya.Application\Asisya.Application.csproj" />
     <ProjectReference Include="..\Asisya.Domain\Asisya.Domain.csproj" />
   </ItemGroup>
