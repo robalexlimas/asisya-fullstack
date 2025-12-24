@@ -1,7 +1,15 @@
 using Microsoft.OpenApi.Models;
+using Asisya.Api.Auth;
 using Asisya.Infrastructure.Database;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
+// JWT Authentication
+var jwtOpt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()
+            ?? throw new InvalidOperationException("Missing Jwt config");
+builder.Services.AddSingleton(jwtOpt);
+builder.Services.AddSingleton<JwtTokenService>();
 
 // MVC Controllers
 builder.Services.AddControllers();
