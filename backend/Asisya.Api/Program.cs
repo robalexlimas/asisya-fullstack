@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using Asisya.Infrastructure.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,13 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Asisya API", Version = "v1" });
 });
+
+var cs = builder.Configuration.GetConnectionString("Default")
+         ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");
+
+builder.Services.AddSingleton<IDbConnectionFactory>(
+    _ => new NpgsqlConnectionFactory(cs)
+);
 
 var app = builder.Build();
 
