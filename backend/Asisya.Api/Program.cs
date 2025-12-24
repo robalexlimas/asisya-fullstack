@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Asisya.Api.Auth;
+using Asisya.Api.Middleware;
 using Asisya.Application.Interfaces;
 using Asisya.Infrastructure.Database;
 using Asisya.Infrastructure.Repositories;
@@ -9,6 +10,9 @@ using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Middleware
+builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
 // JWT Authentication
 var jwtOpt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()
@@ -84,6 +88,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
