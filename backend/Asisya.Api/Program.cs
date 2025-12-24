@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Asisya.Api.Auth;
+using Asisya.Application.Interfaces;
 using Asisya.Infrastructure.Database;
+using Asisya.Infrastructure.Repositories;
 using System.Text;
 
 
@@ -33,6 +35,9 @@ builder.Services.AddAuthorization();
 
 // MVC Controllers
 builder.Services.AddControllers();
+
+// Repositories
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
