@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Asisya.Api.Auth;
 using Asisya.Api.Middleware;
 using Asisya.Application.Interfaces;
+using Asisya.Application.Services;
 using Asisya.Infrastructure.Database;
 using Asisya.Infrastructure.Repositories;
 using System.Text;
@@ -42,6 +43,9 @@ builder.Services.AddControllers();
 
 // Repositories
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+// Services
+builder.Services.AddScoped<CategoryService>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();

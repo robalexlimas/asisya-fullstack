@@ -1,8 +1,9 @@
 namespace Asisya.Application.DTOs.Categories;
 
-public sealed record CategoryDto(
-    Guid Id,
-    string Name,
-    string? PhotoUrl,
-    DateTimeOffset CreatedAt
-);
+public sealed class CategoryDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = default!;
+    public string? PhotoUrl { get; set; }
+    public DateTime CreatedAt { get; set; }
+}

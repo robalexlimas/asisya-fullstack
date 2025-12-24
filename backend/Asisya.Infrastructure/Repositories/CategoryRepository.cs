@@ -14,15 +14,34 @@ public sealed class CategoryRepository : ICategoryRepository
         _db = db;
     }
 
-    public async Task<CategoryDto> CreateAsync(CreateCategoryRequest req, CancellationToken ct)
+    public async Task<CategoryDto> CreateAsync(
+        CreateCategoryRequest req,
+        CancellationToken ct
+    )
     {
-        const string sql = "SELECT * FROM sp_create_category(@Name, @PhotoUrl);";
+        const string sql = """
+        SELECT
+            id          AS "Id",
+            name        AS "Name",
+            photo_url   AS "PhotoUrl",
+            created_at  AS "CreatedAt"
+        FROM sp_create_category(@Name, @PhotoUrl);
+        """;
 
         using var conn = _db.CreateConnection();
-        var result = await conn.QuerySingleAsync<CategoryDto>(
-            new CommandDefinition(sql, new { req.Name, req.PhotoUrl }, cancellationToken: ct)
+
+        var category = await conn.QuerySingleAsync<CategoryDto>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Name = req.Name,
+                    PhotoUrl = req.PhotoUrl
+                },
+                cancellationToken: ct
+            )
         );
 
-        return result;
+        return category;
     }
 }
