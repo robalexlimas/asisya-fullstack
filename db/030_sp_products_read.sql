@@ -33,3 +33,31 @@ BEGIN
   OFFSET (p_page - 1) * p_page_size;
 END;
 $$;
+CREATE OR REPLACE FUNCTION sp_get_product_detail(p_id UUID)
+RETURNS TABLE (
+  id UUID,
+  name VARCHAR,
+  sku VARCHAR,
+  price NUMERIC,
+  category_id UUID,
+  category_name VARCHAR,
+  category_photo_url TEXT,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
+)
+LANGUAGE sql
+AS $$
+  SELECT
+    p.id,
+    p.name,
+    p.sku,
+    p.price,
+    p.category_id,
+    c.name AS category_name,
+    c.photo_url AS category_photo_url,
+    p.created_at,
+    p.updated_at
+  FROM products p
+  JOIN categories c ON c.id = p.category_id
+  WHERE p.id = p_id;
+$$;
