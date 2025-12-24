@@ -23,4 +23,28 @@ public class ProductController : ControllerBase
         var inserted = await _service.GenerateAsync(req, ct);
         return Ok(new { inserted });
     }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] Guid? categoryId = null,
+        CancellationToken ct = default
+    )
+    {
+        var (items, total) = await _service.GetPagedAsync(page, pageSize, search, categoryId, ct);
+
+        return Ok(new { page, pageSize, total, items });
+    }
+
+    [Authorize]
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
+    {
+        var product = await _service.GetByIdAsync(id, ct);
+        if (product is null) return NotFound();
+        return Ok(product);
+    }
 }

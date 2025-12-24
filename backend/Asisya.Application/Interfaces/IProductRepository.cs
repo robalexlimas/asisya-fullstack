@@ -6,7 +6,7 @@ public interface IProductRepository
 {
     Task<int> GenerateAsync(int count, Guid[] categoryIds, int batchSize, CancellationToken ct);
 
-    Task<(IReadOnlyList<ProductListItemDto> Items, int Total)> GetPagedAsync(
+    Task<(IReadOnlyList<ProductListItemDto> Items, long Total)> GetPagedAsync(
         int page,
         int pageSize,
         string? search,
