@@ -1,0 +1,16 @@
+CREATE TABLE categories (
+  id UUID PRIMARY KEY,
+  name VARCHAR(120) NOT NULL UNIQUE,
+  photo_url TEXT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE products (
+  id UUID PRIMARY KEY,
+  name VARCHAR(200) NOT NULL,
+  sku VARCHAR(80) NOT NULL UNIQUE,
+  price NUMERIC(12,2) NOT NULL,
+  category_id UUID NOT NULL REFERENCES categories(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NULL
+);
