@@ -25,6 +25,14 @@ public class ProductController : ControllerBase
     }
 
     [Authorize]
+    [HttpPost("create")]
+    public async Task<IActionResult> Create([FromBody] CreateProductRequest req, CancellationToken ct)
+    {
+        var id = await _service.CreateAsync(req, ct);
+        return Ok(new { id });
+    }
+
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetPaged(
         [FromQuery] int page = 1,
@@ -35,7 +43,6 @@ public class ProductController : ControllerBase
     )
     {
         var (items, total) = await _service.GetPagedAsync(page, pageSize, search, categoryId, ct);
-
         return Ok(new { page, pageSize, total, items });
     }
 
@@ -50,11 +57,7 @@ public class ProductController : ControllerBase
 
     [Authorize]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(
-    Guid id,
-    [FromBody] UpdateProductRequest req,
-    CancellationToken ct
-)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest req, CancellationToken ct)
     {
         var updated = await _service.UpdateAsync(id, req, ct);
         if (!updated) return NotFound();
