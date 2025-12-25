@@ -11,7 +11,7 @@ import { useJobStatus } from '../hooks/useJobStatus'
 import { JobsHistoryTable } from '../ui/JobsHistoryTable'
 import { JobDetailPanel } from '../ui/JobDetailPanel'
 import { getApiErrorMessage } from '@/core/api/apiError'
-import { JobStatusResponse } from '../api/jobs.dto'
+import type { JobStatusResponse } from '../api/jobs.dto'
 
 export function ImportPage() {
   const [file, setFile] = useState<File | null>(null)
@@ -32,9 +32,13 @@ export function ImportPage() {
 
   // detalle del job (modal)
   const detailQ = useJobStatus(jobId)
-
-  // ✅ tu hook devuelve AxiosResponse, así que el payload real está en .data
   const jobDetail = detailQ.data?.data ?? null
+  const isRefreshing = historyQ.isRefetching || detailQ.isRefetching
+
+  const onRefresh = (): void => {
+    void historyQ.refetch()
+    if (jobId != null) void detailQ.refetch()
+  }
 
   return (
     <PageShell title='Importar productos (CSV)'>
@@ -58,14 +62,24 @@ export function ImportPage() {
 
                   create.mutate(file, {
                     onSuccess: (r) => {
-                      setJobId(r.jobId) // abre el detalle si quieres
+                      setJobId(r.jobId)
                       setHistoryPage(1)
                       void historyQ.refetch()
+                      void detailQ.refetch()
                     }
                   })
                 }}
               >
                 {create.isPending ? 'Creando job...' : 'Crear job'}
+              </Button>
+
+              <Button
+                type='button'
+                className='bg-slate-700 hover:bg-slate-600'
+                disabled={isRefreshing}
+                onClick={onRefresh}
+              >
+                {isRefreshing ? 'Actualizando...' : 'Actualizar'}
               </Button>
 
               {jobId != null && (
@@ -130,7 +144,9 @@ export function ImportPage() {
           <p className='text-sm text-red-400'>{getApiErrorMessage(detailQ.error)}</p>
         )}
 
-        {jobDetail != null && <JobDetailPanel job={jobDetail as unknown as JobStatusResponse} />}
+        {jobDetail != null && (
+          <JobDetailPanel job={jobDetail as unknown as JobStatusResponse} />
+        )}
       </Modal>
     </PageShell>
   )

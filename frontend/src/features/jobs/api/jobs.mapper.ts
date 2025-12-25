@@ -8,17 +8,18 @@ const toStatus = (s: string): ImportJobStatus => {
 
 export const jobsMapper = {
     toListItem: (dto: ImportJobListItemDto): ImportJobListItem => ({
-        id: dto.id,
+        jobId: dto.id,
         status: toStatus(dto.status),
         createdAt: dto.createdAt,
         processedRows: dto.processedRows,
         insertedRows: dto.insertedRows,
         failedRows: dto.failedRows,
-        totalRows: dto.totalRows
+        totalRows: dto.totalRows,
+        error: null
     }),
 
     toDetail: (dto: ImportJobDetailDto): ImportJobDetail => ({
-        id: dto.id,
+        jobId: dto.id,
         status: toStatus(dto.status),
         createdAt: dto.createdAt,
         processedRows: dto.processedRows,
