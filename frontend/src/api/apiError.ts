@@ -1,25 +1,51 @@
-import type { AxiosError } from 'axios'
+import axios from 'axios'
+import toast from 'react-hot-toast'
 
 export type ApiError = {
-    Code?: string
-    Message?: string
-    Detail?: string
-    TraceId?: string
+    code: string
+    message: string
+    detail?: string
+    traceId?: string
+    status?: number
 }
 
-export function getApiErrorMessage(error: unknown): string {
-    if (isAxiosError(error)) {
-        const data = error.response?.data as ApiError | undefined
-        return data?.Message ?? error.message
+export function toApiError(err: unknown): ApiError {
+    if (axios.isAxiosError(err)) {
+        const data = err.response?.data as Partial<ApiError> | undefined
+
+        return {
+            code: data?.code ?? 'http_error',
+            message: data?.message ?? err.message ?? 'Request failed',
+            detail: data?.detail,
+            traceId: data?.traceId,
+            status: err.response?.status
+        }
     }
 
-    if (error instanceof Error) {
-        return error.message
+    if (err instanceof Error) {
+        return {
+            code: 'client_error',
+            message: err.message
+        }
     }
 
-    return 'Unexpected error'
+    return {
+        code: 'unknown_error',
+        message: 'Unexpected error'
+    }
 }
 
-function isAxiosError(error: unknown): error is AxiosError {
-    return typeof error === 'object' && error !== null && 'isAxiosError' in error
+export function getApiErrorMessage(err: unknown): string {
+    return toApiError(err).message
+}
+
+export function notifyApiError(
+    err: unknown,
+    fallbackMessage: string = 'Unexpected error'
+): void {
+    const apiErr = toApiError(err)
+
+    toast.error(apiErr.message || fallbackMessage, {
+        duration: 5000
+    })
 }

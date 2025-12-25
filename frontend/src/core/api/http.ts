@@ -1,44 +1,30 @@
-import axios, { AxiosError, AxiosInstance } from 'axios'
+import axios from 'axios'
 import { env } from '@/config/env'
 import { useAuthStore } from '@/store/auth.store'
-import { ApiError, normalizeApiError } from './apiError'
+import { notifyApiError } from '@/api/apiError'
 
-export const http: AxiosInstance = axios.create({
-    baseURL: env.apiBaseUrl,
-    timeout: 30_000,
-    headers: {
-        'Content-Type': 'application/json'
-    }
+export const http = axios.create({
+    baseURL: env.apiBaseUrl
 })
 
-/**
- * Request interceptor
- * - Injects JWT token if present
- */
 http.interceptors.request.use((config) => {
     const token = useAuthStore.getState().token
-
-    if (token != null) {
+    if (token) {
+        config.headers = config.headers ?? {}
         config.headers.Authorization = `Bearer ${token}`
     }
-
     return config
 })
 
-/**
- * Response interceptor
- * - Normalizes API errors
- * - Clears auth on 401
- */
 http.interceptors.response.use(
-    (response) => response,
-    (error: AxiosError) => {
-        const apiError: ApiError = normalizeApiError(error)
+    (res) => res,
+    (error) => {
+        // Si quieres NO toastear el login fallido, puedes filtrar por URL:
+        const url = String(error?.config?.url ?? '')
+        const isLogin = url.includes('/auth/login')
 
-        if (apiError.status === 401) {
-            useAuthStore.getState().clear()
-        }
+        if (!isLogin) notifyApiError(error)
 
-        return Promise.reject(apiError)
+        return Promise.reject(error)
     }
 )

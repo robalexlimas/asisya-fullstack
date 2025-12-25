@@ -1,51 +1,39 @@
-import { AxiosError } from 'axios'
+import axios from 'axios'
+import toast from 'react-hot-toast'
 
-export interface ApiError {
-    status: number
+export type ApiError = {
     code: string
     message: string
     detail?: string
+    traceId?: string
+    status?: number
 }
 
-/**
- * Transforms AxiosError into a normalized ApiError
- */
-export function normalizeApiError(error: unknown): ApiError {
-    if (error instanceof AxiosError) {
-        const status = error.response?.status ?? 0
-        const data = error.response?.data as {
-            Code?: string
-            Message?: string
-            Detail?: string
-        } | undefined
+export function toApiError(err: unknown): ApiError {
+    if (axios.isAxiosError(err)) {
+        const data = err.response?.data as Partial<ApiError> | undefined
 
         return {
-            status,
-            code: data?.Code ?? 'unknown_error',
-            message: data?.Message ?? error.message,
-            detail: data?.Detail
+            code: data?.code ?? 'http_error',
+            message: data?.message ?? err.message ?? 'Request failed',
+            detail: data?.detail,
+            traceId: data?.traceId,
+            status: err.response?.status
         }
     }
 
-    if (error instanceof Error) {
-        return {
-            status: 0,
-            code: 'unexpected_error',
-            message: error.message
-        }
+    if (err instanceof Error) {
+        return { code: 'client_error', message: err.message }
     }
 
-    return {
-        status: 0,
-        code: 'unknown_error',
-        message: 'Unexpected error'
-    }
+    return { code: 'unknown_error', message: 'Unexpected error' }
 }
 
-/**
- * Helper for UI
- */
-export function getApiErrorMessage(error: unknown): string {
-    const apiError = normalizeApiError(error)
-    return apiError.message
+export function getApiErrorMessage(err: unknown): string {
+    return toApiError(err).message
+}
+
+export function notifyApiError(err: unknown, fallbackMessage?: string): void {
+    const apiErr = toApiError(err)
+    toast.error(apiErr.message || fallbackMessage || 'Unexpected error')
 }

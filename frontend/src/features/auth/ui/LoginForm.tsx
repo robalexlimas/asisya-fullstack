@@ -44,10 +44,6 @@ export function LoginForm(props: Props) {
                 />
             </label>
 
-            {props.error && (
-                <p className='text-sm text-red-400'>{props.error}</p>
-            )}
-
             <button
                 type='submit'
                 disabled={!canSubmit}
