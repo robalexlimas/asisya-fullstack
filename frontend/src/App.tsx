@@ -1,12 +1,9 @@
 const App = (): React.JSX.Element => {
   return (
     <>
-      <div>
+      <div className="text-3xl">
         Test
       </div>
-      <p className='read-the-docs'>
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
