@@ -47,4 +47,26 @@ public class ProductController : ControllerBase
         if (product is null) return NotFound();
         return Ok(product);
     }
+
+    [Authorize]
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(
+    Guid id,
+    [FromBody] UpdateProductRequest req,
+    CancellationToken ct
+)
+    {
+        var updated = await _service.UpdateAsync(id, req, ct);
+        if (!updated) return NotFound();
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var deleted = await _service.DeleteAsync(id, ct);
+        if (!deleted) return NotFound();
+        return NoContent();
+    }
 }
