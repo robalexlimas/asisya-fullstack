@@ -1,0 +1,6 @@
+name,sku,price,category
+Product A,SKU-1001,10.50,CLOUD
+Product B,SKU-1002,25.99,SERVIDORES
+Product C,SKU-1003,7.99,CLOUD
+Product D,SKU-1004,199.00,SERVIDORES
+Product E,SKU-1005,55.75,CLOUD

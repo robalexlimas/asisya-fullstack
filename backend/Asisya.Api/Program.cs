@@ -52,6 +52,7 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddSingleton<IImportQueue, InMemoryImportQueue>();
 builder.Services.AddScoped<IImportJobRepository, ImportJobRepository>();
 builder.Services.AddScoped<IProductBulkImporter, PostgresProductBulkImporter>();
+builder.Services.AddHostedService<ProductImportWorker>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
