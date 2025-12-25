@@ -1,8 +1,8 @@
 # Asisya – Prueba Técnica Fullstack
 
-Solución fullstack para la exposición y gestión de productos y categorías, diseñada con foco en arquitectura limpia, escalabilidad, seguridad y performance, cumpliendo los requerimientos de la prueba técnica.
+Solución fullstack para la gestión y exposición de productos y categorías, diseñada con foco en arquitectura limpia, escalabilidad, seguridad y performance, cumpliendo los requerimientos de la prueba técnica.
 
-El proyecto está dividido en Backend (API REST) y Frontend (SPA React), desplegables mediante Docker.
+El proyecto está dividido en Backend (API REST) y Frontend (SPA React), ambos preparados para ejecución local y despliegue mediante Docker / Docker Compose.
 
 ---
 
@@ -14,132 +14,236 @@ Estructura del repositorio
 ├── frontend/       # SPA React
 ├── db/             # Scripts SQL (schema, SPs, jobs)
 ├── docker-compose.yml
-└── README.md       # Este archivo
+└── README.md       # Documentación general del proyecto
 ```
 
 ---
 
-## Tech Stack
+Tech Stack
 
-### Backend
+Backend
 - .NET 8 (compatible con .NET 7+)
 - PostgreSQL 16
-- Dapper
+- Dapper (acceso a datos performante)
 - JWT Authentication
 - Docker
 - Stored Procedures
 - Background Jobs (Hosted Services)
 
-### Frontend
+Frontend
 - React
 - React Router
-- Fetch / Axios
+- TypeScript
+- Axios / Fetch
 - JWT (localStorage + interceptor)
+- Vite
 
-### Testing
+Testing
 - xUnit
 - Moq (unit tests)
-- Testcontainers + PostgreSQL (integration tests)
+- Testcontainers + PostgreSQL (integration / E2E backend)
 
 ---
 
 ## Arquitectura general
 
-La solución sigue una arquitectura por capas (Clean / MVC):
-- API: Controllers, Auth, Background Workers
-- Application: DTOs, interfaces, servicios y validaciones
-- Infrastructure: repositorios, acceso a datos, bulk import
-- Domain: capa preparada para reglas de negocio (extensible)
+La solución sigue una arquitectura por capas inspirada en Clean Architecture / MVC, separando claramente responsabilidades:
 
-Decisiones clave
-- No se exponen entidades directamente (uso de DTOs).
-- Acceso a datos optimizado con stored procedures.
-- Procesos pesados (100k productos) ejecutados de forma asíncrona.
-- Diseño preparado para escalado horizontal.
+Backend
+- API
+- Controllers
+- Autenticación y autorización
+- Background Workers (jobs de importación)
+- Application
+- DTOs
+- Interfaces
+- Servicios de aplicación
+- Validaciones
+- Infrastructure
+- Repositorios Dapper
+- Acceso a datos
+- Bulk import (COPY)
+- Domain
+- Capa preparada para reglas de negocio futuras
+
+Frontend
+- App / Router
+- Definición de rutas
+- Layouts protegidos y públicos
+- Features
+- Productos
+- Categorías
+- Auth
+- Core
+- API client
+- Manejo de errores
+- Guards de seguridad
+- Shared
+- Componentes UI reutilizables
+- Utilidades
+
+---
+
+## Decisiones técnicas y razones
+
+1. Uso de DTOs (no exponer entidades)
+
+Razón
+- Evitar acoplar la API a la estructura interna del dominio.
+- Facilitar versionado y cambios futuros.
+- Control explícito de lo que se expone al cliente.
+
+2. Stored Procedures + Dapper
+
+Razón
+- Performance superior para:
+	- Paginación
+	- Búsquedas
+	- Escritura masiva
+	- Menor overhead que ORMs completos.
+	- Mayor control del SQL ejecutado.
+
+Trade-off
+- Menor portabilidad de DB.
+- Se acepta porque PostgreSQL es un requerimiento explícito.
+
+3. Importación masiva mediante Jobs asíncronos
+
+Problema
+- Importar 100.000+ productos en un request HTTP produce:
+	- Timeouts
+	- Alto consumo de memoria
+	- Bloqueo de threads
+
+Solución propuesta
+- Flujo tipo Job:
+	1.	El cliente sube el CSV
+	2.	Se crea un job
+	3.	Un worker procesa el archivo en background
+	4.	Inserción por batches usando COPY
+	5.	Persistencia del progreso
+
+Beneficios
+- No bloquea requests
+- Escalable
+- Tolerante a errores
+
+4. COPY (PostgreSQL) para bulk insert
+
+Razón
+- Es el método más rápido de inserción masiva en PostgreSQL.
+- Reduce overhead de roundtrips.
+- Ideal para cargas de 100k+ filas.
+
+5. JWT Authentication
+
+Razón
+- Stateless
+- Fácil de escalar horizontalmente
+- Compatible con SPA + API REST
+
+Implementación
+- Login → JWT
+- Token almacenado en localStorage
+- Interceptor adjunta Authorization header
+- Todas las rutas (excepto login) están protegidas
+
+6. Docker como entorno principal
+
+Razón
+- Homogeneidad entre entornos
+- Facilidad de evaluación
+- Reproducibilidad
+
+7. Testing con Testcontainers
+
+Razón
+- Evita mocks irreales de base de datos.
+- Pruebas contra PostgreSQL real.
+- Misma infraestructura que producción.
 
 ---
 
 ## Base de datos
 
-Los scripts SQL viven en la carpeta /db y se ejecutan automáticamente al inicializar el contenedor PostgreSQL:
+Los scripts SQL viven en /db y se ejecutan automáticamente al inicializar el contenedor PostgreSQL:
+
+Incluyen:
 - Esquema de tablas
 - Índices
-- Stored procedures para lectura y escritura
-- Tabla de seguimiento de jobs de importación
+- Stored procedures
+- Tabla de jobs (import_jobs)
 
-Para reinicializar completamente la base de datos:
+Reinicializar completamente la DB:
 
 ```bash
-docker compose down -v –remove-orphans
+docker compose down -v --remove-orphans
 ```
 
 ---
 
 ## Backend
 
-El backend expone una API REST segura para gestionar productos y categorías.
+La API expone endpoints REST seguros para productos, categorías y jobs.
 
-Funcionalidades principales
+Funcionalidades
 - CRUD de categorías
 - CRUD de productos
 - Listado paginado con filtros y búsqueda
 - Autenticación JWT
-- Importación masiva de productos (100k+) mediante jobs asíncronos
-- Seguimiento de progreso de jobs
+- Importación masiva asíncrona
+- Seguimiento de jobs
 
-Documentación detallada:
-- Ver backend/README.md
+📄 Documentación completa:
+👉 backend/README.md
 
----
+### Importación masiva (100k+ productos)
 
-Importación masiva de productos (100k)
+Flujo:
+1.	Upload de CSV
+2.	Creación de job
+3.	Procesamiento en background
+4.	Inserción masiva optimizada
+5.	Consulta de progreso
 
-Se implementó un flujo tipo Job para soportar cargas altas sin bloquear requests HTTP:
-	1.	El cliente sube un archivo CSV
-	2.	Se crea un job y se encola
-	3.	Un background worker procesa el archivo en batches
-	4.	Inserción masiva optimizada con COPY (PostgreSQL)
-	5.	El progreso se persiste y puede ser consultado
-
-Este diseño evita timeouts y permite escalar el procesamiento.
+Estados:
+- Queued
+- Processing
+- Completed
+- Failed
 
 ---
 
 ## Frontend
 
-El frontend es una SPA en React que consume la API.
+SPA en React que consume la API.
 
 Funcionalidades
-- Login (JWT)
+- Login
 - Protección de rutas (AuthGuard)
-- Listado de productos
-- Formularios de creación y edición
-- Manejo de token en localStorage
-- Interceptor para adjuntar JWT en requests
+- Gestión de productos y categorías
+- Importación masiva y visualización de jobs
+- Manejo centralizado de errores
+- Interceptor JWT
 
-El código del frontend vive en:
-
-```bash
-/frontend
-```
+📄 Documentación completa:
+👉 frontend/README.md
 
 ---
 
-### Pruebas
-
-La solución incluye pruebas automatizadas.
+## Pruebas
 
 Unitarias
-- Validación de servicios de aplicación
-- Generación y validación de JWT
-- Parsing y validación de CSV para importación masiva
+- Servicios de aplicación
+- JWT
+- Parsing y validación de CSV
 
-Integración (E2E backend)
-- PostgreSQL real levantado con Testcontainers
-- Ejecución de scripts SQL reales
-- Validación de repositorios y stored procedures
+Integración (E2E Backend)
+- PostgreSQL real (Testcontainers)
+- Stored procedures reales
+- Repositorios Dapper
 
-Ejecución de todas las pruebas:
+Ejecutar todas:
 
 ```bash
 dotnet test backend/Asisya.sln
@@ -147,46 +251,33 @@ dotnet test backend/Asisya.sln
 
 ---
 
-### Docker y ejecución local
+## Docker y ejecución
 
-Ejecutar todo con Docker
+Ejecutar todo
 
 ```bash
-docker compose up –build
+docker compose up --build
 ```
 
 Levanta:
 - PostgreSQL
 - Backend API
-- Frontend (cuando se incluya en el compose final)
-
-Ejecutar backend localmente
-
-```bash
-dotnet build backend/Asisya.sln
-dotnet run –project backend/Asisya.Api
-```
+- Frontend
 
 ---
 
-# CI/CD (pendiente)
+## CI/CD (pendiente)
 
-El pipeline de CI/CD se implementará al final para incluir:
+Pipeline planeado:
 - Build
 - Tests
 - Docker build
-- Despliegue del frontend
+- Deploy
 
 ---
 
-Notas finales
-- El proyecto está diseñado para ser escalable y extensible.
-- Las decisiones arquitectónicas están documentadas.
-- Se priorizó performance y claridad sobre complejidad innecesaria.
-
----
-
-Próximos pasos
-- Implementar pipeline CI/CD (GitHub Actions)
-- Integrar despliegue completo backend + frontend
-- Hardening de seguridad y observabilidad
+## Notas finales
+- Proyecto diseñado para escalar horizontalmente
+- Código organizado por responsabilidad
+- Performance priorizada sobre abstracción innecesaria
+- Decisiones técnicas documentadas y justificadas
