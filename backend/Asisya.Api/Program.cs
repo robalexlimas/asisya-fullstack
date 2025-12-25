@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Asisya.Api.Auth;
+using Asisya.Api.Importing;
 using Asisya.Api.Middleware;
 using Asisya.Application.Interfaces;
 using Asisya.Application.Services;
@@ -48,6 +49,8 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 // Services
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddSingleton<IImportQueue, InMemoryImportQueue>();
+builder.Services.AddScoped<IImportJobRepository, ImportJobRepository>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
