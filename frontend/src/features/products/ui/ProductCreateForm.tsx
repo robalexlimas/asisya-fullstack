@@ -68,7 +68,7 @@ export function ProductCreateForm(props: Props) {
                 value={v.categoryId}
                 onChange={(id) => setV((s) => ({ ...s, categoryId: id }))}
                 emptyLabel='Selecciona una categoría'
-                allowEmpty={false}
+                allowEmpty={true}
             />
 
             <Button type='submit' disabled={!canSubmit}>
