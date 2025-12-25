@@ -1,7 +1,7 @@
-import type { ProductListItem, ProductPage } from '../domain/product.types'
-import type { ProductListItemDto, ProductsPagedResponseDto } from './products.dto'
+import type { ProductListItem, ProductPage, ProductCreate, ProductCreated } from '../domain/product.types'
+import type { ProductListItemDto, ProductsPagedResponseDto, CreateProductRequestDto, CreateProductResponseDto } from './products.dto'
 
-export function mapProductListItem (
+export function mapProductListItem(
   dto: ProductListItemDto
 ): ProductListItem {
   return {
@@ -13,11 +13,24 @@ export function mapProductListItem (
   }
 }
 
-export function mapProductsPage (
+export function mapProductsPage(
   dto: ProductsPagedResponseDto
 ): ProductPage {
   return {
     items: dto.items.map(mapProductListItem),
     total: dto.total
   }
+}
+
+export function toCreateProductRequestDto(p: ProductCreate): CreateProductRequestDto {
+  return {
+    name: p.name.trim(),
+    sku: p.sku.trim(),
+    price: p.price,
+    categoryId: p.categoryId
+  }
+}
+
+export function toProductCreated(dto: CreateProductResponseDto): ProductCreated {
+  return { id: dto.id }
 }

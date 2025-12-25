@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useProducts } from '../hooks/useProducts'
 import { ProductFilters } from '../ui/ProductFilters'
 import { ProductTable } from '../ui/ProductTable'
 import { Pagination } from '@/shared/ui/Pagination'
 import { useResetPageOnDepsChange } from '@/shared/utils/usePagination'
 import { useDebounce } from '@/shared/utils/useDebounce'
+import { Button } from '@/shared/ui/Button'
 
 export function ProductsPage() {
     const [page, setPage] = useState(1)
@@ -30,8 +32,12 @@ export function ProductsPage() {
 
     return (
         <div className='p-6 space-y-4'>
-            <div className='flex items-center justify-between'>
+            <div className='flex items-center justify-between gap-3'>
                 <h1 className='text-xl font-bold text-slate-100'>Productos</h1>
+
+                <Link to='/products/new'>
+                    <Button>Nuevo</Button>
+                </Link>
             </div>
 
             <ProductFilters
