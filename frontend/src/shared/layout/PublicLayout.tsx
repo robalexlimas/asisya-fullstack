@@ -12,8 +12,6 @@ export function PublicLayout() {
 
                     <nav className='flex gap-2'>
                         <NavLink to='/login' className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Login</NavLink>
-                        <NavLink to='/products' className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Products</NavLink>
-                        <NavLink to='/import' className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Import</NavLink>
                     </nav>
                 </div>
             </header>

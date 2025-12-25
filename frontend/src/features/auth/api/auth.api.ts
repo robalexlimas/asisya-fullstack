@@ -10,12 +10,7 @@ export interface LoginResponse {
 }
 
 export async function login(req: LoginRequest): Promise<LoginResponse> {
-    try {
-        const { data } = await http.post<LoginResponse>('/auth/login', req)
-        console.log('login response', data)
-        return data
-    } catch (error) {
-        console.log('login error', error)
-        return { username: 'error', password: 'error' } as unknown as LoginResponse
-    }
+    const { data } = await http.post<LoginResponse>('/auth/login', req)
+    return data
+
 }
