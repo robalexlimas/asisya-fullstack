@@ -51,11 +51,26 @@ public sealed class ProductService
         return _repo.GetByIdAsync(id, ct);
     }
 
-    public async Task<bool> UpdateAsync(
-    Guid id,
-    UpdateProductRequest req,
-    CancellationToken ct
-)
+    public async Task<Guid> CreateAsync(CreateProductRequest req, CancellationToken ct)
+    {
+        if (req is null) throw new ArgumentException("Request is required.");
+        if (string.IsNullOrWhiteSpace(req.Name)) throw new ArgumentException("Name is required.");
+        if (string.IsNullOrWhiteSpace(req.Sku)) throw new ArgumentException("Sku is required.");
+        if (req.Price <= 0) throw new ArgumentException("Price must be greater than 0.");
+        if (req.CategoryId == Guid.Empty) throw new ArgumentException("CategoryId is required.");
+
+        return await _repo.CreateAsync(
+            new CreateProductRequest(
+                req.Name.Trim(),
+                req.Sku.Trim(),
+                req.Price,
+                req.CategoryId
+            ),
+            ct
+        );
+    }
+
+    public async Task<bool> UpdateAsync(Guid id, UpdateProductRequest req, CancellationToken ct)
     {
         if (id == Guid.Empty) throw new ArgumentException("Id is required.");
         if (string.IsNullOrWhiteSpace(req.Name)) throw new ArgumentException("Name is required.");
