@@ -39,7 +39,7 @@ export default function App() {
             type='button'
             className='mt-2 rounded-lg bg-slate-100 py-2 font-medium text-slate-900 hover:bg-white disabled:opacity-50 transition'
             disabled={login.isPending}
-            onClick={() => login.mutate({ user, password })}
+            onClick={() => login.mutate({ username: user, password })}
           >
             {login.isPending ? 'Logging in…' : 'Login'}
           </button>

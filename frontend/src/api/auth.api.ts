@@ -1,6 +1,6 @@
 import { http } from '@/api/http'
 
-export type LoginRequest = { user: string, password: string }
+export type LoginRequest = { username: string, password: string }
 export type LoginResponse = { token: string }
 
 export async function loginApi(req: LoginRequest): Promise<LoginResponse> {
