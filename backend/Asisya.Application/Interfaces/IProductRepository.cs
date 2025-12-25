@@ -15,4 +15,7 @@ public interface IProductRepository
     );
 
     Task<ProductDetailDto?> GetByIdAsync(Guid id, CancellationToken ct);
+
+    Task<bool> UpdateAsync(Guid id, string name, decimal price, Guid categoryId, CancellationToken ct);
+    Task<bool> DeleteAsync(Guid id, CancellationToken ct);
 }

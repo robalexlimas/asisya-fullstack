@@ -26,4 +26,17 @@ public class CategoryController : ControllerBase
         var created = await _service.CreateAsync(req, ct);
         return Ok(created);
     }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        CancellationToken ct = default
+    )
+    {
+        var (items, total) = await _service.GetPagedAsync(page, pageSize, search, ct);
+        return Ok(new { page, pageSize, total, items });
+    }
 }

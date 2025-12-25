@@ -19,4 +19,20 @@ public sealed class CategoryService
 
         return _repo.CreateAsync(req, ct);
     }
+
+    public Task<(IReadOnlyList<CategoryListItemDto> Items, long Total)> GetPagedAsync(
+    int page,
+    int pageSize,
+    string? search,
+    CancellationToken ct
+)
+    {
+        if (page <= 0) page = 1;
+        if (pageSize <= 0) pageSize = 20;
+        if (pageSize > 100) pageSize = 100;
+
+        search = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
+
+        return _repo.GetPagedAsync(page, pageSize, search, ct);
+    }
 }

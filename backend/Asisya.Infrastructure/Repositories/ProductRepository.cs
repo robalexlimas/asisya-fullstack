@@ -119,4 +119,55 @@ public sealed class ProductRepository : IProductRepository
             )
         );
     }
+
+    public async Task<bool> UpdateAsync(
+        Guid id,
+        string name,
+        decimal price,
+        Guid categoryId,
+        CancellationToken ct
+    )
+    {
+        const string sql = """
+    SELECT sp_update_product(
+        @Id,
+        @Name,
+        @Price,
+        @CategoryId
+    );
+    """;
+
+        using var conn = _db.CreateConnection();
+
+        var updated = await conn.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Id = id,
+                    Name = name,
+                    Price = price,
+                    CategoryId = categoryId
+                },
+                cancellationToken: ct
+            )
+        );
+
+        return updated;
+    }
+
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct)
+    {
+        const string sql = "SELECT sp_delete_product(@Id);";
+
+        using var conn = _db.CreateConnection();
+
+        return await conn.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new { Id = id },
+                cancellationToken: ct
+            )
+        );
+    }
 }
