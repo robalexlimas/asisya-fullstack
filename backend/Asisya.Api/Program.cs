@@ -54,6 +54,17 @@ builder.Services.AddScoped<IImportJobRepository, ImportJobRepository>();
 builder.Services.AddScoped<IProductBulkImporter, PostgresProductBulkImporter>();
 builder.Services.AddHostedService<ProductImportWorker>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendDev", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 
@@ -100,11 +111,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseRouting();
 
-app.MapControllers();
+app.UseCors("FrontendDev");
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();
