@@ -1,28 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useProducts } from '../hooks/useProducts'
 import { ProductFilters } from '../ui/ProductFilters'
 import { ProductTable } from '../ui/ProductTable'
 import { Pagination } from '@/shared/ui/Pagination'
 import { useResetPageOnDepsChange } from '@/shared/utils/usePagination'
-
-function useDebounced(value: string, ms: number): string {
-    const [v, setV] = useState(value)
-
-    useMemo(() => {
-        const t = setTimeout(() => setV(value), ms)
-        return () => clearTimeout(t)
-    }, [value, ms])
-
-    return v
-}
+import { useDebounce } from '@/shared/utils/useDebounce'
 
 export function ProductsPage() {
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(20)
     const [search, setSearch] = useState('')
 
-    // debounce search para no spamear requests
-    const debouncedSearch = useDebounced(search, 400)
+    const debouncedSearch = useDebounce(search, 400)
 
     useResetPageOnDepsChange({
         page,
@@ -33,7 +22,7 @@ export function ProductsPage() {
     const q = useProducts({
         page,
         pageSize,
-        search: debouncedSearch.length > 0 ? debouncedSearch : undefined
+        search: debouncedSearch.trim().length > 0 ? debouncedSearch : undefined
     })
 
     const items = q.data?.items ?? []
@@ -45,7 +34,10 @@ export function ProductsPage() {
                 <h1 className='text-xl font-bold text-slate-100'>Productos</h1>
             </div>
 
-            <ProductFilters search={search} onSearchChange={setSearch} />
+            <ProductFilters
+                search={search}
+                onSearchChange={setSearch}
+            />
 
             {q.isLoading
                 ? (
