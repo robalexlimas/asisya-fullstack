@@ -12,33 +12,58 @@ export default function App() {
   const [password, setPassword] = useState('admin123')
 
   return (
-    <div className='min-h-screen bg-slate-100 flex items-center justify-center p-6'>
-      <div className='bg-white rounded-xl shadow p-6 w-full max-w-md'>
+    <div className='min-h-screen bg-slate-950 flex items-center justify-center p-6 text-slate-100'>
+      <div className='w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-lg'>
         <h1 className='text-xl font-bold'>Asisya Front</h1>
+        <p className='mt-1 text-sm text-slate-400'>
+          Fullstack Technical Challenge
+        </p>
 
-        <div className='mt-4 grid gap-2'>
-          <input className='border rounded px-3 py-2' value={user} onChange={(e) => setUser(e.target.value)} />
-          <input className='border rounded px-3 py-2' type='password' value={password} onChange={(e) => setPassword(e.target.value)} />
+        <div className='mt-6 grid gap-3'>
+          <input
+            className='rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-600'
+            value={user}
+            onChange={(e) => setUser(e.target.value)}
+            placeholder='User'
+          />
+
+          <input
+            className='rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-600'
+            type='password'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder='Password'
+          />
+
           <button
-            className='rounded bg-slate-900 text-white py-2 hover:bg-slate-800 disabled:opacity-50'
+            type='button'
+            className='mt-2 rounded-lg bg-slate-100 py-2 font-medium text-slate-900 hover:bg-white disabled:opacity-50 transition'
             disabled={login.isPending}
             onClick={() => login.mutate({ user, password })}
           >
-            {login.isPending ? 'Logging in...' : 'Login'}
+            {login.isPending ? 'Logging in…' : 'Login'}
           </button>
 
           {login.isError && (
-            <p className='text-sm text-red-600'>{getApiErrorMessage(login.error)}</p>
+            <p className='text-sm text-red-400'>
+              {getApiErrorMessage(login.error)}
+            </p>
           )}
         </div>
 
         <div className='mt-6'>
-          <p className='text-sm text-slate-600'>Token:</p>
-          <p className='text-xs break-all'>{token ?? '(none)'}</p>
+          <p className='text-xs text-slate-400'>Token:</p>
+          <p className='mt-1 break-all rounded-lg bg-slate-950 p-2 text-xs text-slate-300'>
+            {token ?? '(none)'}
+          </p>
 
           {token && (
-            <button className='mt-3 text-sm underline' onClick={clear}>
-              Logout (clear token)
+            <button
+              type='button'
+              className='mt-3 text-sm text-slate-400 underline hover:text-slate-200'
+              onClick={clear}
+            >
+              Logout
             </button>
           )}
         </div>
