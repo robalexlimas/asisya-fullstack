@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/auth.store'
 const linkBase = 'text-sm px-3 py-2 rounded hover:bg-slate-800'
 const linkActive = 'bg-slate-800'
 
-export function ProtectedLayout () {
+export function ProtectedLayout() {
   const clear = useAuthStore((s) => s.clear)
   const navigate = useNavigate()
 
@@ -20,6 +20,7 @@ export function ProtectedLayout () {
           <div className='font-semibold'>Asisya</div>
 
           <nav className='flex items-center gap-2'>
+            <NavLink to='/categories' className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Categories</NavLink>
             <NavLink to='/products' className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Products</NavLink>
             <NavLink to='/import' className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Import</NavLink>
 

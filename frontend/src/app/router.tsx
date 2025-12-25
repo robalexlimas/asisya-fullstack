@@ -8,6 +8,7 @@ import { ProductsPage } from '@/features/products/pages/ProductsPage'
 import { ProductCreatePage } from '@/features/products/pages/ProductCreatePage'
 import { ProductEditPage } from '@/features/products/pages/ProductEditPage'
 import { ImportPage } from '@/features/jobs/pages/ImportPage'
+import CategoriesPage from '@/features/categories/pages/CategoriesPage'
 
 export const router = createBrowserRouter([
   // Public (anónimo)
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedLayout />,
         children: [
+          { path: '/categories', element: <CategoriesPage /> },
           { path: '/products', element: <ProductsPage /> },
           { path: '/products/new', element: <ProductCreatePage /> },
           { path: '/products/:id/edit', element: <ProductEditPage /> },
