@@ -10,29 +10,29 @@ import { ProductEditPage } from '@/features/products/pages/ProductEditPage'
 import { ImportPage } from '@/features/jobs/pages/ImportPage'
 
 export const router = createBrowserRouter([
-    // Public (anónimo)
-    {
-        path: '/',
-        element: <PublicLayout />,
-        children: [
-            { index: true, element: <Navigate to='/login' replace /> },
-            { path: 'login', element: <LoginPage /> }
-        ]
-    },
+  // Public (anónimo)
+  {
+    path: '/',
+    element: <PublicLayout />,
+    children: [
+      { index: true, element: <Navigate to='/login' replace /> },
+      { path: 'login', element: <LoginPage /> }
+    ]
+  },
 
-    // Protected
-    {
-        element: <AuthGuard />,
+  // Protected
+  {
+    element: <AuthGuard />,
+    children: [
+      {
+        element: <ProtectedLayout />,
         children: [
-            {
-                element: <ProtectedLayout />,
-                children: [
-                    { path: '/products', element: <ProductsPage /> },
-                    { path: '/products/new', element: <ProductCreatePage /> },
-                    { path: '/products/:id/edit', element: <ProductEditPage /> },
-                    { path: '/import', element: <ImportPage /> }
-                ]
-            }
+          { path: '/products', element: <ProductsPage /> },
+          { path: '/products/new', element: <ProductCreatePage /> },
+          { path: '/products/:id/edit', element: <ProductEditPage /> },
+          { path: '/import', element: <ImportPage /> }
         ]
-    }
+      }
+    ]
+  }
 ])

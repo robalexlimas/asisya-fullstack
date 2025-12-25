@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "ts-standard --project tsconfig.eslint.json",
-    "lint:fix": "ts-standard --fix --project tsconfig.eslint.json"
+    "lint": "ts-standard --config .ts-standard.json --project tsconfig.eslint.json",
+    "lint:fix": "ts-standard --fix --config .ts-standard.json --project tsconfig.eslint.json"
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.2",
@@ -34,7 +34,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.1",
     "eslint": "9.39.1",
-    "eslint-plugin-react-hooks": "7.0.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "0.4.24",
     "globals": "16.5.0",
     "ts-standard": "12.0.2",

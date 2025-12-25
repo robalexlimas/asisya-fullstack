@@ -3,7 +3,7 @@ import { useLogin } from '@/features/auth/useLogin'
 import { useAuthStore } from '@/store/auth.store'
 import { getApiErrorMessage } from '@/api/apiError'
 
-export default function App() {
+export default function App () {
   const token = useAuthStore((s) => s.token)
   const clear = useAuthStore((s) => s.clear)
   const login = useLogin()
