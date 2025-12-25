@@ -31,7 +31,6 @@ export function Modal({
 
         document.addEventListener('keydown', onKeyDown)
 
-        // Focus inicial al panel
         const t = window.setTimeout(() => {
             panelRef.current?.focus()
         }, 0)
@@ -50,10 +49,10 @@ export function Modal({
             role='dialog'
             aria-modal='true'
             onMouseDown={(e) => {
-                // close al clickear overlay
                 if (e.target === e.currentTarget) onClose()
             }}
         >
+            {/* overlay */}
             <div className='absolute inset-0 bg-black/60' />
 
             <div
@@ -66,11 +65,31 @@ export function Modal({
                 )}
             >
                 {(title != null || description != null) && (
-                    <div className='p-5 border-b border-slate-800'>
-                        {title != null && <h2 className='text-base font-semibold'>{title}</h2>}
-                        {description != null && (
-                            <p className='mt-1 text-sm text-slate-300'>{description}</p>
-                        )}
+                    <div className='flex items-start justify-between gap-4 p-5 border-b border-slate-800'>
+                        <div>
+                            {title != null && (
+                                <h2 className='text-base font-semibold'>{title}</h2>
+                            )}
+                            {description != null && (
+                                <p className='mt-1 text-sm text-slate-300'>
+                                    {description}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* botón cerrar */}
+                        <button
+                            type='button'
+                            aria-label='Cerrar'
+                            onClick={onClose}
+                            className={cn(
+                                'inline-flex h-8 w-8 items-center justify-center rounded-lg',
+                                'text-slate-400 hover:text-slate-100',
+                                'hover:bg-slate-800 transition-colors'
+                            )}
+                        >
+                            ✕
+                        </button>
                     </div>
                 )}
 

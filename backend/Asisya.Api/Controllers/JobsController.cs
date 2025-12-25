@@ -23,4 +23,19 @@ public sealed class JobsController : ControllerBase
         if (job is null) return NotFound();
         return Ok(job);
     }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken ct = default
+    )
+    {
+        if (page <= 0) page = 1;
+        if (pageSize <= 0 || pageSize > 100) pageSize = 20;
+
+        var (items, total) = await _jobs.GetPagedAsync(page, pageSize, ct);
+        return Ok(new { page, pageSize, total, items });
+    }
 }
