@@ -1,21 +1,44 @@
 services:
-  postgres:
+  db:
     image: postgres:16
-    container_name: asisya-postgres
+    container_name: asisya_db
     environment:
+      POSTGRES_DB: asisya_db
       POSTGRES_USER: asisya
       POSTGRES_PASSWORD: asisya
-      POSTGRES_DB: asisya_db
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./db:/docker-entrypoint-initdb.d
+      - ./db:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U asisya"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U asisya -d asisya_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Asisya.Api/Dockerfile
+    container_name: asisya_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Default: Host=db;Port=5432;Database=asisya_db;Username=asisya;Password=asisya
+      Jwt__Issuer: Asisya
+      Jwt__Audience: AsisyaClients
+      Jwt__SigningKey: 8f0c9b1a0c0a4d1f8d3e3f7b2a5c6d7e
+      Jwt__ExpiresMinutes: 60
+      Jwt__User: admin
+      Jwt__Password: admin123
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    volumes:
+      - api_storage:/app/storage
 
 volumes:
   pgdata:
+  api_storage:
