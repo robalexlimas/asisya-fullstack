@@ -14,6 +14,27 @@ public sealed class ProductRepository : IProductRepository
         _db = db;
     }
 
+    public async Task<Guid> CreateAsync(CreateProductRequest req, CancellationToken ct)
+    {
+        const string sql = "SELECT sp_create_product(@Name, @Sku, @Price, @CategoryId);";
+
+        using var conn = _db.CreateConnection();
+
+        return await conn.ExecuteScalarAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Name = req.Name,
+                    Sku = req.Sku,
+                    Price = req.Price,
+                    CategoryId = req.CategoryId
+                },
+                cancellationToken: ct
+            )
+        );
+    }
+
     public async Task<int> GenerateAsync(int count, Guid[] categoryIds, int batchSize, CancellationToken ct)
     {
         const string sql = "SELECT sp_generate_products(@Count, @CategoryIds::uuid[], @BatchSize);";
@@ -42,8 +63,6 @@ public sealed class ProductRepository : IProductRepository
         CancellationToken ct
     )
     {
-        // Firma real en tu DB:
-        // sp_get_products(p_page int, p_page_size int, p_category_id uuid, p_search text)
         const string sql = """
         SELECT
           id            AS "Id",
@@ -92,19 +111,19 @@ public sealed class ProductRepository : IProductRepository
         public string Sku { get; set; } = default!;
         public decimal Price { get; set; }
         public string CategoryName { get; set; } = default!;
-        public long TotalCount { get; set; } // bigint -> long
+        public long TotalCount { get; set; }
     }
 
     public async Task<ProductDetailDto?> GetByIdAsync(Guid id, CancellationToken ct)
     {
         const string sql = """
         SELECT
-          id                AS "Id",
-          name              AS "Name",
-          sku               AS "Sku",
-          price             AS "Price",
-          category_id       AS "CategoryId",
-          category_name     AS "CategoryName",
+          id                 AS "Id",
+          name               AS "Name",
+          sku                AS "Sku",
+          price              AS "Price",
+          category_id        AS "CategoryId",
+          category_name      AS "CategoryName",
           category_photo_url AS "CategoryPhotoUrl"
         FROM sp_get_product_detail(@Id);
         """;
@@ -120,26 +139,20 @@ public sealed class ProductRepository : IProductRepository
         );
     }
 
-    public async Task<bool> UpdateAsync(
-        Guid id,
-        string name,
-        decimal price,
-        Guid categoryId,
-        CancellationToken ct
-    )
+    public async Task<bool> UpdateAsync(Guid id, string name, decimal price, Guid categoryId, CancellationToken ct)
     {
         const string sql = """
-    SELECT sp_update_product(
-        @Id,
-        @Name,
-        @Price,
-        @CategoryId
-    );
-    """;
+        SELECT sp_update_product(
+            @Id,
+            @Name,
+            @Price,
+            @CategoryId
+        );
+        """;
 
         using var conn = _db.CreateConnection();
 
-        var updated = await conn.ExecuteScalarAsync<bool>(
+        return await conn.ExecuteScalarAsync<bool>(
             new CommandDefinition(
                 sql,
                 new
@@ -152,8 +165,6 @@ public sealed class ProductRepository : IProductRepository
                 cancellationToken: ct
             )
         );
-
-        return updated;
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken ct)
