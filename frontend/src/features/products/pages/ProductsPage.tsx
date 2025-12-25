@@ -6,7 +6,6 @@ import { ProductTable } from '../ui/ProductTable'
 import { Pagination } from '@/shared/ui/Pagination'
 import { useResetPageOnDepsChange } from '@/shared/utils/usePagination'
 import { useDebounce } from '@/shared/utils/useDebounce'
-import { Button } from '@/shared/ui/Button'
 
 export function ProductsPage() {
     const [page, setPage] = useState(1)
@@ -24,7 +23,7 @@ export function ProductsPage() {
     const q = useProducts({
         page,
         pageSize,
-        search: debouncedSearch.trim().length > 0 ? debouncedSearch : undefined
+        search: debouncedSearch.trim().length > 0 ? debouncedSearch.trim() : undefined
     })
 
     const items = q.data?.items ?? []
@@ -35,8 +34,11 @@ export function ProductsPage() {
             <div className='flex items-center justify-between gap-3'>
                 <h1 className='text-xl font-bold text-slate-100'>Productos</h1>
 
-                <Link to='/products/new'>
-                    <Button>Nuevo</Button>
+                <Link
+                    to='/products/new'
+                    className='inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors'
+                >
+                    Nuevo
                 </Link>
             </div>
 
@@ -45,28 +47,34 @@ export function ProductsPage() {
                 onSearchChange={setSearch}
             />
 
-            {q.isLoading
-                ? (
-                    <div className='text-slate-300'>Cargando...</div>
-                )
-                : (
-                    <>
-                        <ProductTable items={items} />
+            {q.isLoading && (
+                <div className='text-slate-300'>Cargando...</div>
+            )}
 
-                        <div className='pt-3'>
-                            <Pagination
-                                page={page}
-                                pageSize={pageSize}
-                                total={total}
-                                onPageChange={setPage}
-                                onPageSizeChange={(ps) => {
-                                    setPageSize(ps)
-                                    setPage(1)
-                                }}
-                            />
-                        </div>
-                    </>
-                )}
+            {q.isError && (
+                <div className='text-sm text-red-400'>
+                    Error cargando productos
+                </div>
+            )}
+
+            {!q.isLoading && !q.isError && (
+                <>
+                    <ProductTable items={items} />
+
+                    <div className='pt-3'>
+                        <Pagination
+                            page={page}
+                            pageSize={pageSize}
+                            total={total}
+                            onPageChange={setPage}
+                            onPageSizeChange={(ps) => {
+                                setPageSize(ps)
+                                setPage(1)
+                            }}
+                        />
+                    </div>
+                </>
+            )}
         </div>
     )
 }

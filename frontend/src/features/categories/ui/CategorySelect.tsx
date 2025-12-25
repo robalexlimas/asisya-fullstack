@@ -14,7 +14,7 @@ export function CategorySelect({
     onChange,
     disabled,
     allowEmpty = true,
-    emptyLabel = 'Todas'
+    emptyLabel = 'Seleccionar categoría'
 }: Props) {
     const q = useCategories({ page: 1, pageSize: 200, search: undefined })
 
