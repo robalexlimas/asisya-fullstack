@@ -177,11 +177,87 @@ Esto permite múltiples instancias de API y múltiples workers procesando en par
 
 ---
 
-Pruebas
+Perfecto. Aquí tienes la sección de Pruebas actualizada, coherente con lo que ya implementaste (unit + integración con Testcontainers).
+Puedes reemplazar completamente la sección “Pruebas” de tu README por esta:
 
-Pendiente de incluir:
-- Unit tests
-- Al menos un integration test
+---
+
+## Pruebas
+
+La solución incluye pruebas unitarias y pruebas de integración (E2E de backend), cumpliendo el requerimiento de la prueba técnica.
+
+### Pruebas unitarias
+
+Se implementaron pruebas unitarias para validar reglas de negocio y componentes aislados, utilizando mocks para dependencias externas.
+
+Cobertura principal:
+- ProductService
+- Validación de reglas de negocio (parámetros inválidos).
+- Normalización de paginación.
+- Uso de repositorios mockeados (Moq).
+- JwtTokenService
+- Generación de JWT.
+- Validación de firma, issuer, audience y claims.
+- CSV Product Parser
+- Validación de parsing de líneas CSV para importación masiva.
+- Casos válidos e inválidos (precio, categoría inexistente, formato).
+
+Herramientas:
+- xUnit
+- Moq
+
+Ejecución:
+
+```bash
+dotnet test backend/Asisya.UnitTests/Asisya.UnitTests.csproj
+```
+
+---
+
+### Pruebas de integración (E2E Backend)
+
+Se implementaron pruebas de integración usando PostgreSQL real levantado dinámicamente con Testcontainers, ejecutando los mismos scripts SQL que se usan en entornos reales.
+
+Estas pruebas validan:
+- Ejecución correcta del esquema y stored procedures.
+- Acceso a datos real vía Dapper.
+- Integración completa repositorio ↔ base de datos.
+
+Casos cubiertos:
+- CategoryRepository
+- Creación de categorías.
+- Persistencia real en PostgreSQL.
+- ProductRepository
+- Generación masiva de productos vía sp_generate_products.
+- Consulta paginada vía sp_get_products.
+
+Herramientas:
+- Testcontainers (PostgreSQL)
+- xUnit
+- Dapper
+- Npgsql
+
+Ejecución (requiere Docker activo):
+
+```bash
+dotnet test backend/Asisya.IntegrationTests/Asisya.IntegrationTests.csproj
+````
+
+---
+
+Ejecutar todas las pruebas
+
+```bash
+dotnet test backend/Asisya.sln
+```
+
+---
+
+Notas sobre CI/CD
+
+Las pruebas están diseñadas para ejecutarse:
+- Localmente.
+- En pipelines CI (GitHub Actions / GitLab CI), ya que Testcontainers levanta dependencias de forma automática.
 
 ---
 
